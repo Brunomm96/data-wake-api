@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+
+  datawake-api:
+    image: datawake/data-wake-api:0.1
+    build:
+      context: ./../../data-wake-api
+      dockerfile: ./Dockerfile
+    container_name: api-datawake
+    environment:
+      APP_OPTIONS:
+        --spring.datasource.driverClassName=${DB_DRIVER}
+        --spring.jpa.properties.hibernate.dialect=${DB_DIALECT}
+        --spring.datasource.url=${DB_URL}
+        --spring.datasource.username=${DB_USER}
+        --spring.datasource.password=${DB_PASSWORD}
+        --app.corsAllowOrigin=${API_ALLOW_CORS_ORIGIN}
+        --server.ssl.key-store=${API_SSL_P12_PATH}
+        --server.ssl.key-store-password=${API_SSL_PASSWORD}
+        --server.ssl.key-alias=${API_SSL_ALIAS}
+        --spring.jpa.show-sql=${JPA_SHOW_SQL}
+        --spring.jpa.properties.hibernate.show_sql=${JPA_SHOW_SQL_HIBERNATE}
+        --spring.jpa.properties.hibernate.format_sql=${JPA_HIBERNATE_FORMAT_SQL}
+    volumes:
+      - /home/ds2u/apps/certificado:/app/certificado
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "${API_PORT}:9325"
+    networks:
+      - network-datawake-production
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+
+  network-datawake-production:
+    name: network-datawake-production
+    driver: bridge
